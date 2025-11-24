@@ -16,6 +16,6 @@
     "Windows": "Binary provided for AMD64, else you'll need to compile your own",
     "Linux": "Binary provided for x64, else you'll need to compile your own"
   },
-  "version": "v1.0",
+  "version": "v1.0.8614",
   "minimumbinaryninjaversion": 8614
 }
