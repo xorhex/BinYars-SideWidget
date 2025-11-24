@@ -6,7 +6,11 @@ BinYars is a Binary Ninja Plugin which intergrates YARA-X into Binary Ninja - 2 
 
 ## Manual Installation
 
+See: [BinYars](https://github.com/xorhex/BinYars)
+
 This plugin comes in 2 parts.
+
+## Components
 
 ### Rust Component
 

@@ -12,10 +12,10 @@
   },
   "platforms": ["Darwin", "Windows", "Linux"],
   "installinstructions": {
-    "Darwin": "",
-    "Windows": "",
-    "Linux": ""
+    "Darwin": "Binary provided for ARM64, else you'll need to compile your own",
+    "Windows": "Binary provided for AMD64, else you'll need to compile your own",
+    "Linux": "Binary provided for x64, else you'll need to compile your own"
   },
   "version": "v1.0",
-  "minimumbinaryninjaversion": 8587
+  "minimumbinaryninjaversion": 8614
 }
