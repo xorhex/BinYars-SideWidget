@@ -26,7 +26,9 @@ def get_os_libbinyars():
 
 def is_supported() -> bool:
     uname = platform.uname()
-    if uname.machine == "x86_64" and uname.system in ["Linux", "Windows"]:
+    if uname.machine == "x86_64" and uname.system in ["Linux"]:
+        return True
+    if uname.machine == "AMD64" and uname.system in ["Windows"]:
         return True
 
     if uname.machine == "arm64" and uname.system in ["Darwin"]:
