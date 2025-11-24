@@ -86,25 +86,18 @@ if not register_settings():
 # Copy the binyars rust library up to the
 # root of the plugin folder
 #################################################
-lib = Path(os.path.join(user_plugin_path(), "binyars-sidewidgit", get_os_libbinyars()))
+lib = Path(os.path.join(user_plugin_path(), "BinYars-SideWidget", get_os_libbinyars()))
 if lib.exists():
     if is_supported():
-        shutil.move(
-            lib.resolve(), os.path.join(user_plugin_path(), get_os_libbinyars())
-        )
-        logger.log_alert(
-            "Hi, BinYars here!\n\n"
-            "First, Thank You for installing BinYars!\n\n"
-            "This is NOT an error; however, we are abusing this log alert feature\n"
-            "to let you know that the BinYars rust componenet has been installed\n"
-            "(aka. copied to the root of the plugin dir).\n\n"
-            "Restart BinaryNinja to load this BinYars rust instance into BinaryNinja.\n\n"
-            "Upon restarting BinaryNinja, this mesage should NOT reappear.\n\n"
-            "If there is a better way to install the rust component, please create\n"
-            "an issue here: https://github.com/xorhex/BinYars/issues\n\n"
-            "Happy YARA-X Rule Writing,\n"
-            "BinYars"
-        )
+        try:
+            shutil.move(
+                lib.resolve(), os.path.join(user_plugin_path(), get_os_libbinyars())
+            )
+            logger.log_info(
+                f"Copied the BinYars rust binary, {get_os_libbinyars()}, into the plugin dir."
+            )
+        except Exception as ex:
+            logger.log_error(f"Issue installing rust plugin: {ex}")
     else:
         logger.log_error(
             "Binaries are only provided for MacOS (arm64), Linux (x86_64), and Windows (x86_64). Plugin won't work unless you provide the compiled rust binary."
