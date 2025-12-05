@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QStyle,
     QSpacerItem,
-    QAbstractScrollArea,
+    QPlainTextEdit,
 )
 from PySide6.QtGui import QImage, QPainter, QColor, QFontMetrics, QPen, QPixmap, QIcon
 
@@ -373,58 +373,62 @@ def amber_alert_icon_pixmap(size=24):
 class BinYarsSidebarWidget(SidebarWidget):
     def __init__(self, name, frame: ViewFrame, data):
         SidebarWidget.__init__(self, name)
-        self.actionHandler = UIActionHandler()
-        self.actionHandler.setupActionHandler(self)
 
         self.bv = None
         self.layout = QVBoxLayout()
 
-        yar_dir = Settings().get_string(PLUGIN_SETTINGS_DIR)
-        ## Controls to display to the use the current
-        # Value fo Yara-X Rule Dir stored in the settings
-        self.binyarscandir = YaraRulesDirWidget(yar_dir)
-        self.binyarscandir.refresh_button.clicked.connect(
-            lambda: self.binyarscandir.update_label(
-                Settings().get_string(PLUGIN_SETTINGS_DIR), True
-            )
-        )
-        ## End Section
+        try:
+            self.actionHandler = UIActionHandler()
+            self.actionHandler.setupActionHandler(self)
 
-        self.tabs = QTabWidget()
-        self.hit_details = QScanResultSelectedSection()
-        self.hit_section = QScanResultsHitSection(self.hit_details)
-        self.hit_section.refreshButtonClicked.connect(self.set_tab_icon)
-        tab1 = QTab([self.hit_section])
-        _ = self.tabs.addTab(tab1, QIcon(), "Scan Results")
-
-        self.tab_icon_tooltip = "Rule Editor Scan Results Showing"
-
-        self.editor = QScanRuleEditSection()
-
-        def view_temp_rule_results(bv: BinaryView):
-            if bv.file.database:
-                if self.hit_section.get_data(bv, temp_data_only=True):
-                    logger.log_debug("Switching to Scan Results Tab")
-                    self.tabs.setCurrentIndex(
-                        self.get_tab_index_by_name(self.tabs, "Scan Results")
-                    )
-                    self.set_tab_icon()
-            else:
-                self.editor.status.setLabelAndStatus(
-                    "Need a bndb file in order to view the results",
-                    Status.RED,
+            yar_dir = Settings().get_string(PLUGIN_SETTINGS_DIR)
+            ## Controls to display to the user the current
+            ## value for Yara-X Rule Dir stored in the settings
+            self.binyarscandir = YaraRulesDirWidget(yar_dir)
+            self.binyarscandir.refresh_button.clicked.connect(
+                lambda: self.binyarscandir.update_label(
+                    Settings().get_string(PLUGIN_SETTINGS_DIR), True
                 )
+            )
+            ## End Section
 
-        self.editor.viewScanResultsRequested.connect(
-            lambda bv: view_temp_rule_results(bv)
-        )
+            self.tabs = QTabWidget()
+            self.hit_details = QScanResultSelectedSection()
+            self.hit_section = QScanResultsHitSection(self.hit_details)
+            self.hit_section.refreshButtonClicked.connect(self.set_tab_icon)
+            tab1 = QTab([self.hit_section])
+            _ = self.tabs.addTab(tab1, QIcon(), "Scan Results")
 
-        tab2 = QTab([self.editor])
-        _ = self.tabs.addTab(tab2, "Rule Editor")
+            self.tab_icon_tooltip = "Rule Editor Scan Results Showing"
 
-        self.layout.addWidget(self.tabs)
-        self.layout.addWidget(self.binyarscandir)
-        self.setLayout(self.layout)
+            self.editor = QScanRuleEditSection()
+
+            def view_temp_rule_results(bv: BinaryView):
+                if bv.file.database:
+                    if self.hit_section.get_data(bv, temp_data_only=True):
+                        logger.log_debug("Switching to Scan Results Tab")
+                        self.tabs.setCurrentIndex(
+                            self.get_tab_index_by_name(self.tabs, "Scan Results")
+                        )
+                        self.set_tab_icon()
+                else:
+                    self.editor.status.setLabelAndStatus(
+                        "Need a bndb file in order to view the results",
+                        Status.RED,
+                    )
+
+            self.editor.viewScanResultsRequested.connect(
+                lambda bv: view_temp_rule_results(bv)
+            )
+
+            tab2 = QTab([self.editor])
+            _ = self.tabs.addTab(tab2, "Rule Editor")
+
+            self.layout.addWidget(self.tabs)
+            self.layout.addWidget(self.binyarscandir)
+            self.setLayout(self.layout)
+        except Exception as ex:
+            logger.log_debug(ex)
 
     def set_tab_icon(self):
         """Toggle icon visibility and tooltip."""
@@ -1318,7 +1322,7 @@ class QScanResultsHitSection(QWidget):
         logger.log_debug("Scan Only clicked")
         if self.bv:
             if not self.bv.has_database:
-                logger.log_error(
+                logger.log_alert(
                     "Must save the the binary first to create the\nbndb file in order to scan the file."
                 )
                 return
@@ -1350,7 +1354,7 @@ class QScanResultsHitSection(QWidget):
         logger.log_debug(f"Compile + Scan clicked {self.bv}")
         if self.bv:
             if not self.bv.has_database:
-                logger.log_error(
+                logger.log_alert(
                     "Must save the the binary first to create the\nbndb file in order to scan the file."
                 )
                 return
