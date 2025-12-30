@@ -16,6 +16,7 @@ from .constants import (
     PLUGIN_SETTINGS_DIR,
     PLUGIN_SETTINGS_NAME,
     PLUGIN_NAME,
+    PLUGIN_SETTINGS_STRING_VAR_LIMIT,
 )
 from .binyarssettings import BinYarsSettings
 
@@ -162,6 +163,7 @@ class BinYarScanner:
             c_size_t,  # len
             c_char_p,  # folder
             c_char_p,  # compiled_rules_file_name
+            c_size_t,  # pattern_limit
         ]
         self.lib.scan_bytes.restype = c_void_p  # returns *const c_char
 
@@ -186,6 +188,7 @@ class BinYarScanner:
             ctypes.POINTER(c_uint8),  # pointer to bytes
             ctypes.c_size_t,  # length of bytes
             ctypes.c_char_p,  # rule string
+            ctypes.c_size_t,  # pattern_limit
         ]
         self.lib.scan_rule_against_bytes.restype = ctypes.c_void_p  # returns a C string
 
@@ -241,9 +244,12 @@ class BinYarScanner:
         data_ptr = (c_uint8 * len(raw_bytes))(*raw_bytes)
         folder_c = self.yar_dir.encode("utf-8")
         rules_c = self.yar_compiled.encode("utf-8")
+        pattern_limit_c = Settings().get_integer(PLUGIN_SETTINGS_STRING_VAR_LIMIT)
 
         # Call Rust function
-        result_ptr = self.lib.scan_bytes(data_ptr, len(raw_bytes), folder_c, rules_c)
+        result_ptr = self.lib.scan_bytes(
+            data_ptr, len(raw_bytes), folder_c, rules_c, pattern_limit_c
+        )
 
         # Convert result back to Python string
         # if not result_ptr:
@@ -291,10 +297,11 @@ class BinYarScanner:
         # Convert Python -> C types
         data_ptr = (c_uint8 * len(raw_bytes))(*raw_bytes)
         rule_bytes = rule.encode("utf-8")
+        pattern_limit_c = Settings().get_integer(PLUGIN_SETTINGS_STRING_VAR_LIMIT)
 
         # Call Rust function
         result_ptr = self.lib.scan_rule_against_bytes(
-            data_ptr, len(raw_bytes), rule_bytes
+            data_ptr, len(raw_bytes), rule_bytes, pattern_limit_c
         )
 
         # Convert back to Python str
