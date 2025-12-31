@@ -35,7 +35,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QStyle,
     QSpacerItem,
-    QPlainTextEdit,
 )
 from PySide6.QtGui import QImage, QPainter, QColor, QFontMetrics, QPen, QPixmap, QIcon
 
@@ -450,13 +449,13 @@ class BinYarsSidebarWidget(SidebarWidget):
         if view_frame is not None:
             view = view_frame.getCurrentViewInterface()
             self.bv = view.getData()
-            logger.log_debug(f"View changed to: {self.bv.file.view}")
-            self.hit_details.update_bv(self.bv)
-            self.editor.update_bv(self.bv)
-            self.hit_section.update_bv(self.bv)
             current_file_id = get_original_file_id(self.bv)
             global state
             if state.last_loaded_file_id != current_file_id:
+                logger.log_debug(f"View changed to: {self.bv.file.view}")
+                self.hit_details.update_bv(self.bv)
+                self.editor.update_bv(self.bv)
+                self.hit_section.update_bv(self.bv)
                 # Get the last used metadata key for the current_file_id
                 # this is needed to restore the correct yara-x result set
                 # when switching between samples

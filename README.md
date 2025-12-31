@@ -36,6 +36,10 @@ Set the value for **<u>"Set YARA-X Rules Directory"</u>** to a folder that conta
 
 ![](./pictures/BinYars-Settings.png)
 
+![](./pictures/binyars_string_capture_limiter.png)
+
+**Yara-X String Var** setting limits the number of string matches captured by the plugin for rendering in the UI.  If the number is too high, it can cause BinaryNinja to become sluggish.  The number `20` was arbitrarily set; if the string match does not render in the UI, then adjust this number and re-run the scan to re-populate the json results stored in BinaryNinja for rendering.
+
 ## Features
 
 ### Project Level
