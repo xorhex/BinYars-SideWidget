@@ -56,11 +56,13 @@ from .binyarscanner import (
     ConsoleEntry,
     ConsoleEntryGroup,
     ConsoleLog,
+    Action,
 )
 from .binyarssettings import BinYarsSettings
 from .binyarseditor import CodeEditorWidget
 from .state import StateInfo
 from .binyarsdiraboutwidget import YaraRulesDirWidget
+from .binyarstriggeractionwidget import TriggerActionWidget
 from .constants import (
     KEY,
     TEMPKEY,
@@ -996,6 +998,11 @@ class QScanResultSelectedSection(QWidget):
             QSizePolicy.Expanding, QSizePolicy.Expanding
         )
         self.layout.addWidget(self.master_list_widget, 1)
+
+        self.trigger = TriggerActionWidget()
+        self.layout.addWidget(self.trigger, 0)
+        self.trigger.hide()
+
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setLayout(self.layout)
 
@@ -1008,6 +1015,7 @@ class QScanResultSelectedSection(QWidget):
         identifiers: list[Identifier],
         console_groups: list[ConsoleEntryGroup],
         settings: BinYarsSettings,
+        action: Action | None,
     ):
         self.desc_label.setText(rule_desc)
         self.master_list_widget.clear()
@@ -1054,6 +1062,12 @@ class QScanResultSelectedSection(QWidget):
 
                     if idx < len(identifiers) - 1:
                         self.add_separator()
+
+        self.trigger.clear()
+        self.trigger.hide()
+        if action:
+            self.trigger.update_action(action.name, action.code, console_groups)
+            self.trigger.show()
 
     def update_bv(self, bv: BinaryView):
         logger.log_debug(f"QScanResultsSelectedSection binary view updated: {bv}")
@@ -1309,7 +1323,24 @@ class QScanResultsHitSection(QWidget):
 
                 # Step 4: Get Settings
                 settings = BinYarsSettings(rule["settings"])
-                self.details.update(rule["desc"], identifiers, console_groups, settings)
+
+                # Step 5: Get Action
+                if "action" in rule.keys():
+                    if rule["action"]:
+                        logger.log_debug(rule.keys())
+                        if "name" in rule["action"].keys():
+                            if "code" in rule["action"].keys():
+                                action = Action(
+                                    rule["action"]["name"], rule["action"]["code"]
+                                )
+                    else:
+                        action = None
+                else:
+                    action = None
+
+                self.details.update(
+                    rule["desc"], identifiers, console_groups, settings, action
+                )
 
     def reload_action(self):
         logger.log_debug("Reload clicked")

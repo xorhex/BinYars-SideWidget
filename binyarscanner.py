@@ -42,12 +42,22 @@ class ConsoleLog:
 
 
 @dataclass
+class Action:
+    name: str
+    code: str
+
+    def __repr__(self):
+        return f"Name: {self.name}\tCode: {self.code}"
+
+
+@dataclass
 class MetaRule:
     rule: str
     desc: str
     settings: List[Dict[str, str | None]] = field(default_factory=list)
     identifiers: List[Pattern] = field(default_factory=list)
     console: List[ConsoleLog] = field(default_factory=list)
+    action: Action | None = None
 
     def settings_to_BinYarsSettings(self):
         return BinYarsSettings(self.settings)
@@ -284,6 +294,9 @@ class BinYarScanner:
                         for p in mr.get("identifiers", [])
                     ],
                     console=[ConsoleLog(data=c) for c in mr.get("console", [])],
+                    action=Action(mr["action"]["name"], mr["action"]["code"])
+                    if "action" in mr.keys() and mr["action"]
+                    else None,
                 )
                 for mr in raw_list
             ]
@@ -331,6 +344,9 @@ class BinYarScanner:
                         for p in mr.get("identifiers", [])
                     ],
                     console=[ConsoleLog(data=c) for c in mr.get("console", [])],
+                    action=Action(mr["action"]["name"], mr["action"]["code"])
+                    if "action" in mr.keys() and mr["action"]
+                    else None,
                 )
                 for mr in raw_list
             ]
