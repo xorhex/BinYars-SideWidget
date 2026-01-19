@@ -7,8 +7,10 @@ KEY = "BinYars"
 TEMPKEY = "BinYarsTempResults"
 DEFAULT_RULE_TEMPLATE = """rule <rule_name> {
     meta:
-      BNFolder = ""
+      BNFolder    = ""
       Description = ""
+      BNSettings  = ""  # [!sr|!sr:<$string_name>]
+      BNTrigger   = ""  # Format: Action Name|Base64 Encoded Code Snippet
 
     strings:
       
